@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الاختبار التفاعلي | أ. سعود الشلوي</title>
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #3498db;
+            --accent-color: #f39c12;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 0;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        /* الجزء الخاص ببيانات المعلم والمدرسة */
+        .school-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+        }
+
+        .school-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .school-header .info {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info span b {
+            color: var(--accent-color);
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .progress-container {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #fdfdfd;
+            border: 2px solid #edeff2;
+            padding: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            border-color: var(--secondary-color);
+            background-color: #f0f7ff;
+            transform: translateX(-5px);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success-bg) !important;
+            border-color: var(--success-text) !important;
+            color: var(--success-text) !important;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error-bg) !important;
+            border-color: var(--error-text) !important;
+            color: var(--error-text) !important;
+        }
+
+        .option-btn.disabled {
+            pointer-events: none;
+        }
+
+        .explanation {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #fff9eb;
+            border-right: 6px solid var(--accent-color);
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            float: left;
+            display: none;
+        }
+
+        .next-btn:hover { background-color: #154360; }
+
+        .result-screen { text-align: center; display: none; padding: 40px; }
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: var(--primary-color); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin: 20px auto; border: 5px solid var(--accent-color);
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="school-header">
+        <h1>الاختبار التفاعلي الشامل لقوانين الكيمياء</h1>
+        <div class="info">
+            <span>المعلم: <b>أ. سعود الشلوي</b></span>
+            <span>المدرسة: <b>ثانوية قرطبة</b></span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div id="quiz-interface">
+            <div class="stats">
+                <span id="q-count">السؤال: 1 / 31</span>
+                <span id="score-display">النتيجة: 0</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div id="quiz-content">
+                </div>
+
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">السؤال التالي ⬅</button>
+            <div style="clear: both;"></div>
+        </div>
+
+        <div id="result-screen" class="result-screen">
+            <h2>انتهى الاختبار</h2>
+            <div class="score-circle" id="final-score">0%</div>
+            <p id="feedback-msg" style="font-size: 1.2rem; font-weight: bold;"></p>
+            <button class="next-btn" style="display:inline-block; float: none;" onclick="location.reload()">إعادة المحاولة ↻</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // مصفوفة الـ 31 سؤالاً (تم دمج جميع الأسئلة السابقة هنا)
+    const questions = [
+        { q: "أذيب 20g من ملح نترات البوتاسيوم في 180g من الماء المقطر. ما النسبة المئوية بالكتلة للمذاب؟", options: ["11.1%", "10.0%", "20.0%", "9.0%"], correct: 1, exp: "كتلة المحلول = 20 + 180 = 200g. النسبة = (20/200) × 100 = 10%." },
+        { q: "لتحضير محلول أسيتون تركيزه 30% بالحجم وحجمه الكلي 500mL، ما حجم الأسيتون اللازم؟", options: ["30 mL", "100 mL", "150 mL", "350 mL"], correct: 2, exp: "الحجم = (النسبة × حجم المحلول) / 100 = (30 × 500) / 100 = 150 mL." },
+        { q: "أذيب 117g من NaCl (الكتلة المولية 58.5) في ماء لعمل محلول 400mL. ما المولارية؟", options: ["2.0 M", "0.5 M", "5.0 M", "5.85 M"], correct: 2, exp: "المولات = 117/58.5 = 2. المولارية = 2 / 0.4L = 5.0 M." },
+        { q: "ما مولالية محلول يتكون من 0.5 mol من السكروز في 250 g من الماء؟", options: ["0.5 m", "1.0 m", "2.0 m", "0.002 m"], correct: 2, exp: "المولالية = مولات المذاب / كتلة المذيب بالـ kg = 0.5 / 0.25 = 2.0 m." },
+        { q: "كم غراماً من NaOH (الكتلة المولية 40) تلزم لتحضير 500mL بتركيز 0.2M؟", options: ["2 g", "4 g", "8 g", "40 g"], correct: 1, exp: "الكتلة = M × V(L) × Mw = 0.2 × 0.5 × 40 = 4 g." },
+        { q: "ما حجم الماء اللازم إضافته إلى 50mL من حمض 2.0M ليصبح تركيزه 0.5M؟", options: ["150 mL", "200 mL", "100 mL", "50 mL"], correct: 0, exp: "V2 = (2×50)/0.5 = 200mL. الماء المضاف = 200 - 50 = 150mL." },
+        { q: "محلول يحتوي على 2 mol ميثانول و 8 mol ماء. ما الكسر المولي للمذيب (الماء)؟", options: ["0.2", "0.8", "0.25", "4.0"], correct: 1, exp: "الكسر المولي = 8 / (2+8) = 0.8." },
+        { q: "إذا كانت ذائبية غاز 0.6 g/L عند 2 atm، فكم الضغط لتصبح الذائبية 1.5 g/L؟", options: ["4 atm", "5 atm", "3 atm", "1.2 atm"], correct: 1, exp: "P2 = (S2 × P1) / S1 = (1.5 × 2) / 0.6 = 5 atm." },
+        { q: "ما مقدار الارتفاع في غليان محلول CaCl2 تركيزه 0.5m؟ (Kb=0.512، i=3)", options: ["0.256°C", "0.512°C", "0.768°C", "1.536°C"], correct: 2, exp: "ΔTb = i × Kb × m = 3 × 0.512 × 0.5 = 0.768°C." },
+        { q: "محلول مائي 2.0m لمادة غير متأينة (Kf=1.86). ما درجة تجمد المحلول؟", options: ["-1.86°C", "-3.72°C", "3.72°C", "0.93°C"], correct: 1, exp: "ΔTf = 2 × 1.86 = 3.72. درجة التجمد = 0 - 3.72 = -3.72°C." },
+        { q: "جهد الخلية لقطبين: كاثود (+0.80V) وآنود (-0.25V)؟", options: ["0.55 V", "1.05 V", "-1.05 V", "0.65 V"], correct: 1, exp: "E_cell = 0.80 - (-0.25) = 1.05 V." },
+        { q: "إذا كان [H+] = 2×10⁻³ M، فإن [OH-] يساوي:", options: ["5×10⁻¹² M", "2×10⁻¹¹ M", "1×10⁻⁷ M", "0.5×10⁻¹⁰ M"], correct: 0, exp: "[OH-] = 10⁻¹⁴ / (2×10⁻³) = 5×10⁻¹² M." },
+        { q: "ما قيمة pH لمحلول HCl تركيزه 0.01 M؟", options: ["1", "2", "12", "13"], correct: 1, exp: "pH = -log(0.01) = 2." },
+        { q: "محلول تركيز [OH-] فيه 1×10⁻³ M. ما قيمة pOH؟", options: ["3", "11", "7", "-3"], correct: 0, exp: "pOH = -log(10⁻³) = 3." },
+        { q: "إذا كانت pH لمحلول تساوي 7.4، فإن pOH تساوي:", options: ["7.4", "6.6", "14.0", "1.0"], correct: 1, exp: "pOH = 14 - 7.4 = 6.6." },
+        { q: "لزم 20mL من H2SO4 (0.5M) لتعادل 40mL من NaOH. ما مولارية القاعدة؟ (النسبة 1:2)", options: ["0.25 M", "0.50 M", "1.0 M", "2.0 M"], correct: 1, exp: "(0.5×20)/1 = (Mb×40)/2 => 10 = 20Mb => Mb = 0.5 M." },
+        { q: "لهيدروكسيد المغنيسيوم (Ksp=4×10⁻¹²)، ما تركيز [OH-] عند التشبع؟", options: ["1×10⁻⁴ M", "2×10⁻⁴ M", "4×10⁻⁴ M", "1×10⁻¹² M"], correct: 1, exp: "Ksp=4s³ => s=10⁻⁴. [OH-]=2s=2×10⁻⁴ M." },
+        { q: "ما التعبير الصحيح لثابت حاصل الذائبية لفوسفات الكالسيوم Ca₃(PO₄)₂؟", options: ["Ksp=[Ca][PO4]", "Ksp=[Ca]³[PO4]²", "Ksp=3[Ca]×2[PO4]", "Ksp=[Ca]³[PO4]²/الصلب"], correct: 1, exp: "يتم رفع التركيز لأس المعامل في المعادلة الموزونة." },
+        { q: "عندما يكون الحاصل الأيوني Qsp أكبر من Ksp، فإنه:", options: ["لا يتكون راسب", "يتكون راسب", "المحلول غير مشبع", "تزداد الذائبية"], correct: 1, exp: "Qsp > Ksp تعني أن المحلول فوق مشبع ويحدث ترسيب." },
+        { q: "في التفاعل N₂ + 3H₂ ⇌ 2NH₃، التراكيز هي [0.5, 1.0, 2.0] بالترتيب. Keq؟", options: ["4", "8", "2", "0.25"], correct: 1, exp: "Keq = 2² / (0.5 × 1³) = 4 / 0.5 = 8." },
+        { q: "خليط 2mol He و 3mol Ne، الضغط الكلي 10atm. ضغط He الجزئي؟", options: ["2 atm", "4 atm", "5 atm", "6 atm"], correct: 1, exp: "P(He) = (2/5) × 10 = 4 atm." },
+        { q: "النسبة بين سرعة انتشار غاز A (كتلة 4) وغاز B (كتلة 16) هي:", options: ["2 : 1", "1 : 2", "4 : 1", "1 : 4"], correct: 0, exp: "√(16/4) = 2. غاز A أسرع بمرتين." },
+        { q: "ضغط جوي مقداره 1.5 atm، كم يساوي بوحدة kPa؟", options: ["151.95 kPa", "67.5 kPa", "101.3 kPa", "202.6 kPa"], correct: 0, exp: "1.5 × 101.3 = 151.95 kPa." },
+        { q: "في القانون R=k[A]²، إذا زاد [A] ثلاث مرات، تزداد السرعة:", options: ["3 مرات", "6 مرات", "9 مرات", "12 مرة"], correct: 2, exp: "الزيادة = (3)² = 9 مرات." },
+        { q: "إذا تضاعف التركيز مرتين وزادت السرعة 8 مرات، فإن الرتبة هي:", options: ["1", "2", "3", "0"], correct: 2, exp: "2ⁿ = 8 => n = 3." },
+        { q: "حرارة التفاعل A→B إذا كانت حرارة تكوين A=-100 و B=-150؟", options: ["-50 kJ", "+50 kJ", "-250 kJ", "+250 kJ"], correct: 0, exp: "ΔH = (-150) - (-100) = -50 kJ." },
+        { q: "حرارة تسخين 50g ألومنيوم (c=0.9) من 20°C إلى 40°C؟", options: ["90 J", "900 J", "1800 J", "450 J"], correct: 1, exp: "q = 50 × 0.9 × 20 = 900 J." },
+        { q: "عينة 10g امتصت 400J وارتفعت 20°C. الحرارة النوعية؟", options: ["0.5 J/g°C", "2.0 J/g°C", "4.0 J/g°C", "1.0 J/g°C"], correct: 1, exp: "c = 400 / (10×20) = 2.0 J/g°C." },
+        { q: "ما الطاقة اللازمة لصهر 2 mol من مادة حرارة انصهارها 6.0 kJ/mol؟", options: ["3.0 kJ", "6.0 kJ", "12.0 kJ", "24.0 kJ"], correct: 2, exp: "q = 2 × 6.0 = 12.0 kJ." },
+        { q: "مادة حرارة انصهارها 200 J/g. كم غراماً يصهرها 1000 J؟", options: ["200 g", "5 g", "50 g", "0.2 g"], correct: 1, exp: "m = 1000 / 200 = 5 g." },
+        { q: "وجبة تحتوي 250 Cal (غذائية). كم تساوي بالجول؟ (1cal=4.184J)", options: ["1046 J", "104600 J", "1046000 J", "59750 J"], correct: 2, exp: "250,000 cal × 4.184 = 1,046,000 J." }
+    ];
+
+    let currentQ = 0; let score = 0;
+
+    function loadQ() {
+        const quizContent = document.getElementById('quiz-content');
+        const nextBtn = document.getElementById('next-btn');
+        quizContent.innerHTML = ''; nextBtn.style.display = 'none';
+
+        const q = questions[currentQ];
+        document.getElementById('q-count').textContent = `السؤال: ${currentQ + 1} / ${questions.length}`;
+        document.getElementById('progress-bar').style.width = `${((currentQ)/questions.length)*100}%`;
+
+        const qTitle = document.createElement('div'); qTitle.className = 'question-text'; qTitle.innerHTML = q.q;
+        quizContent.appendChild(qTitle);
+
+        const grid = document.createElement('div'); grid.className = 'options-grid';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('div'); btn.className = 'option-btn';
+            btn.innerHTML = opt; btn.onclick = () => check(i, btn);
+            grid.appendChild(btn);
+        });
+        quizContent.appendChild(grid);
+
+        const exp = document.createElement('div'); exp.className = 'explanation'; exp.id = 'exp';
+        exp.innerHTML = `<b>💡 شرح الحل:</b><br>${q.exp}`;
+        quizContent.appendChild(exp);
+    }
+
+    function check(idx, btn) {
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(b => b.classList.add('disabled'));
+        document.getElementById('exp').style.display = 'block';
+
+        if(idx === questions[currentQ].correct) {
+            btn.classList.add('correct'); score++;
+            document.getElementById('score-display').textContent = `النتيجة: ${score}`;
+        } else {
+            btn.classList.add('incorrect');
+            btns[questions[currentQ].correct].classList.add('correct');
+        }
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQ++;
+        if(currentQ < questions.length) loadQ(); else showResult();
+    }
+
+    function showResult() {
+        document.getElementById('quiz-interface').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        const percent = Math.round((score/questions.length)*100);
+        document.getElementById('final-score').textContent = percent + '%';
+        document.getElementById('feedback-msg').textContent = percent >= 90 ? "أداء مذهل! كيميائي مبدع" : percent >= 60 ? "جيد جداً، واصل التدريب" : "راجع القوانين وحاول مرة أخرى";
+    }
+
+    loadQ();
+</script>
+
+</body>
+</html>
